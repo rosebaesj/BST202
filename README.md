@@ -15,3 +15,11 @@ I'm pretty sure there are some of you who are actually experts in R,
 so please let me know if there's any better way or other ways to approach.
 And also any comments on errors, typos etc are welcomed.
 Please make an issue or find me.
+\
+\
+### References
+- Principles of Biostatistics 3rd edition
+- BST202 Summer by 
+  - Marcia A. Testa, M.P.H., M.Phil., Ph.D. 
+  - Devika Godbole
+  - Joanne (Zhuoran) Wei
