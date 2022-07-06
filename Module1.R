@@ -1,5 +1,9 @@
 # Module 1
 # Date July 5th 2022
+library(ggplot2) 
+
+
+
 
 ##### Step 1: make a csv file from the given table #####
 # the file as spaces so tsv might make errors, use csv just in case
@@ -14,7 +18,7 @@ data <- read.csv("Module1.csv", sep = ",", header = TRUE)
 
 ranked_data <- data[order(data$percap),]
 
-library(ggplot2)
+
 ggplot(data, aes(x=percap))+
   geom_histogram(color="black", fill="grey")+
   scale_x_continuous(breaks = seq(0,2500,))
@@ -32,3 +36,6 @@ ggplot(data, aes(x=percap))+
         axis.line.y = element_line(colour = 'black', size=0.75, linetype='solid')
   )
 plot(aofib_ddr_distribution)
+
+
+
