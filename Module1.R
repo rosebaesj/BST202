@@ -1,4 +1,3 @@
-
 # Date July 5th 2022
 
 library(ggplot2) #package to plot
@@ -9,6 +8,7 @@ library(tidyverse)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #### Module 1 Homework ######
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 
 ##### + Step 1: make a csv file from the given table #####
 # the file as spaces so tsv might make errors, use csv just in case
@@ -69,8 +69,6 @@ attr(heart$mdicat, which = "label") <- c("mdi categorized")
 ### make it as factor so that we can count easily
 heart$mdicat <- as.factor(heart$mdicat)
 summary(heart$mdicat)
-
-
 
 
 
