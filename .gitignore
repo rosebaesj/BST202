@@ -2,4 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-/STATA/
+#ignore
+/STATA
+DummyCodes.R
