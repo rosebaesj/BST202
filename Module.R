@@ -137,41 +137,35 @@ grouped <- data.frame(cotinine=c("0-13", "14-149", "150-299"),
 grouped[,2]<- as.numeric(grouped[,2])
 grouped[,3]<- as.numeric(grouped[,3])
 grouped[,4]<- as.numeric(grouped[,4])
-### grouped mean
 
-GroupedMean<-NULL
-Smf_smokers<- 0
-for(i in 1:3){
-  Smf_smokers <- Smf_smokers + grouped$midpoint[i]*grouped$smokers[i]
-}
-GroupedMean$smokers = Smf_smokers/1127
+### Better approach
+GroupedResults<-NULL #set an empty object
 
-Smf_nonsmokers<- 0
-for(i in 1:3){
-  Smf_nonsmokers <- Smf_nonsmokers + grouped$midpoint[i]*grouped$nonsmokers[i]
-}
-GroupedMean$nonsmokers = Smf_nonsmokers/3434
-GroupedMean
-# $smokers
+#get midpoint*observations for each row
+grouped$mf_smokers <- grouped$midpoint*grouped$smokers
+grouped$mf_nonsmokers <- grouped$midpoint*grouped$nonsmokers
+
+#Sum and divide by total observations
+GroupedResults$mean_smokers<-sum(grouped$mf_smokers)/1127
+GroupedResults$mean_nonsmokers<-sum(grouped$mf_nonsmokers)/3434
+# $mean_smokers
 # [1] 148.3802
 # 
-# $nonsmokers
+# $mean_nonsmokers
 # [1] 10.42603
 
 
+# calculate (midpoint-mean)square*observations
+grouped$m_x2f_smokers <- (grouped$midpoint-GroupedResults$mean_smokers)^2*grouped$smokers
+grouped$m_x2f_nonsmokers <- (grouped$midpoint-GroupedResults$mean_nonsmokers)^2*grouped$nonsmokers
 
-### grouped variance
-GroupedVariance<-NULL
-Smx2f_smokers <- 0
-for(i in 1:3){
-  Smx2f_smokers <- Smx2f_smokers + (grouped$midpoint[i]-GroupedMean$smokers)*(grouped$midpoint[i]-GroupedMean$smokers)*grouped$smokers[i]
-}
-GroupedVariance$smokers = Smx2f_smokers/(1127-1)
+# sum ans divide by total observations
+GroupedResults$variance_smokers <- sum(grouped$m_x2f_smokers)/(1127-1)
+GroupedResults$variance_nonsmokers <- (sum(grouped$m_x2f_nonsmokers)/(3434-1))
+# $variance_smokers
+# [1] 6228.022
+# 
+# $variance_nonsmokers
+# [1] 497.0566
 
-Smx2f_nonsmokers <- 0
-for(i in 1:3){
-  Smx2f_nonsmokers <- Smx2f_nonsmokers + (grouped$midpoint[i]-GroupedMean$nonsmokers)*(grouped$midpoint[i]-GroupedMean$nonsmokers)*grouped$nonsmokers[i]
-}
-GroupedVariance$nonsmokers = Smx2f_nonsmokers/(3434-1)
-GroupedVariance
 
