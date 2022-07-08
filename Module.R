@@ -1,5 +1,10 @@
 # Date July 5th 2022
 
+
+# you need to install the packages below, using install.packages()
+# I already have them on my Mac so I didn't install them
+# every time you start R or Rstudio, you need to open the packages, using library()
+
 library(ggplot2) #package to plot
 library(haven) #package to import .dta files to R (https://cran.r-project.org/web/packages/haven/haven.pdf)
 library(dplyr) #for mutate function
@@ -167,5 +172,159 @@ GroupedResults$variance_nonsmokers <- (sum(grouped$m_x2f_nonsmokers)/(3434-1))
 # 
 # $variance_nonsmokers
 # [1] 497.0566
+
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#### Module 3 Lab ######
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+lab3 <- read_dta("STATA/lab3.dta") #same files
+View(lab3)
+
+
+### Q a) What are the crude cancer mortality rates (per 1000) for each of 1940 and 1986,#######
+#        and how do they compare?
+### A 1986 has a higher death rate
+
+sum(lab3$deaths40)/sum(lab3$pop40)
+#1.201489
+sum(lab3$deaths86)/sum(lab3$pop86)
+#1.946644
+
+## want to make the table?
+colnames <- c("Year", "Deaths", "Total Population (1000s)", "Death Rate (1000s)")
+year1940 <- c("1940", sum(lab3$deaths40), sum(lab3$pop40), sum(lab3$deaths40)/(sum(lab3$pop40)))
+year1986 <- c("1986", sum(lab3$deaths86), sum(lab3$pop86), sum(lab3$deaths86)/(sum(lab3$pop86)))
+
+answertable_a <- rbind(colnames, year1940, year1986)
+
+
+#### b). For both 1940 and 1986, calculate the proportion of the total population in each age group. ####
+#+ We can use Stata to generate a new variable called percent40 as follows
+
+#Type the following commands into the Command window
+#I used sum instead of the exact numbers
+lab3$per40 <- lab3$pop40/sum(lab3$pop40)
+lab3$per86 <- lab3$pop86/sum(lab3$pop86)
+#### c) ######
+# 1940s are bit younger
+
+
+##### d) Compute the age-specific cancer death rates for each population. #######
+
+lab3$ASR40 <- lab3$deaths40/lab3$pop40
+# [1] 0.04302738 0.74430994 5.85330747
+lab3$ASR86 <- lab3$deaths86/lab3$pop86
+# [1] 0.04334692 0.59185721 7.91807393
+lab
+###       Is there a relationship between age and death rate?
+# yes very necessary 
+
+#### e) Does it appear to be necessary to control for the effect of age when comparing cancer death rates in the two populations? Why or why not? (We can check the trend of the age-specific rates: create a variable for the age categories in the data editor (called for example agecat) with just the numbers 1, 2, 3. Then type twoway (line agerate40 agecat) (line agerate86 agecat)to create two line graphs.)#####
+# not really,,,? but a little bit because olds died a lot in 86
+lab3$age_category <- c(1, 2, 3)
+ggplot(lab3, aes(x=age_category))+
+  geom_line(aes(y=ASR40), color = "pink")+
+  geom_line(aes(y=ASR86), color = "skyblue")+
+  theme_classic()
+ggsave("outputs/lab3_e.png", device = "png", units = "cm", width = 10, height = 7)
+
+#
+
+##### f) Using the U.S. population in 1940 as a standard distribution, 
+# apply the direct method of standardization. What are the age-adjusted cancer mortality rates for 1940 and 1986? (Stata commands: generate exp40=agerate40*pop40, generate exp86=agerate86*pop40,tabstat exp40 exp86, statistics(sum))
+###****use the US population of 1940, keep the ASR****###
+lab3$expectedD40 <- lab3$ASR40*lab3$pop40
+sum(lab3$expectedD40)
+lab3$expectedD86 <- lab3$ASR86*lab3$pop40
+sum(lab3$expectedD86)
+
+
+#### g) How does the age-adjusted death rate differ from the crude death rate in each of these populations? 
+# How would you explain these differences?
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#### HW 03 ######
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+Group <- c("Children", "Cases", "Total", "Paralytic", "Non-Paralytic", "Not_Polio")
+Vaccine <- c(200745, 82, 57, 33, 24, 25)
+Placebo <- c(201229, 162, 142, 115, 27, 20)
+
+HW03_2 <- data.frame(rbind(Vaccine, Placebo))
+colnames(HW03_2) <- Group
+
+t_HW03_2 <- data.frame(t(HW03_2))
+# When ERROR: $ operator is invalid for atomic vectors >>>>> data.frame it
+
+t_HW03_2$Vaccine_rates<- t_HW03_2$Vaccine/200745*100000
+t_HW03_2$Placebo_rates<- t_HW03_2$Placebo/201229*100000
+
+HW03_2 <- rbind(HW03_2, Vaccine_rates, Placebo_rates)
+
+
+##### Question 14 ####
+Age <- c("0-4", "5-9", "10-14", "15-19", "20-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75+")
+ME_pop <- c(75037, 79727, 74061, 68683, 60575, 105723, 101192, 90346, 72478, 46614, 22396)
+ME_deaths <- c(1543, 148, 104, 153, 224, 413, 552, 980, 1476, 2433, 3056)
+SC_pop <- c(205076, 240750, 222808, 211345, 166354, 219327, 191349, 143509, 80491, 40441, 16723)
+SC_deaths <- c(4905, 446, 410, 901, 1073, 1910, 2377, 2862, 2667, 2486, 2364)
+HW03_3 <- data.frame(cbind(Age, ME_pop, ME_deaths, SC_pop, SC_deaths))
+for (i in 2: ncol(HW03_3)){
+ HW03_3[,i] <- as.numeric( HW03_3[,i]) 
+}
+HW03_3[,1] <- factor(x = HW03_3[,1], level = Age)
+
+Total <- t(c(796832, 11082, 1738173, 22401))
+colnames(Total)<- c("ME_pop", "ME_deaths", "SC_pop", "SC_deaths")
+
+HW03_3$ME_pro <- HW03_3$ME_pop/796832
+HW03_3$SC_pro <- HW03_3$SC_pop/1738173
+
+
+ggplot(HW03_3, aes(group = 1))+
+  geom_line(aes(x= Age, y=ME_pro), color = "pink")+
+  geom_line(aes(x= Age, y=SC_pro), color = "skyblue")+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.5))+
+  ylab("Proportion of Population")
+ggsave("outputs/HW03_3b.png", device = "png", units = "cm", width = 10, height = 7)
+
+
+HW03_3$ME_ASM <- HW03_3$ME_deaths/HW03_3$ME_pop*1000
+HW03_3$SC_ASM <- HW03_3$SC_deaths/HW03_3$SC_pop*1000
+
+ggplot(HW03_3, aes(group = 1))+
+  geom_line(aes(x= Age, y=ME_ASM), color = "pink")+
+  geom_line(aes(x= Age, y=SC_ASM), color = "skyblue")+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.5))+
+  ylab("Age-Specific Mortality Rates")
+ggsave("outputs/HW03_3c.png", device = "png", units = "cm", width = 10, height = 7)
+
+
+HW03_3$US_pop <- c(8.01, 8.11, 8.92, 9.37, 8.80, 16.21, 13.92, 11.78, 8.03, 4.84, 2.01)
+
+HW03_3$ME_Spop <- ((HW03_3$US_pop/100)*796832)
+HW03_3$SC_Spop <- ((HW03_3$US_pop/100)*1738173)
+
+HW03_3$ME_Edeaths <- ((HW03_3$US_pop/100)*796832)*(HW03_3$ME_ASM/1000)
+HW03_3$SC_Edeaths <- ((HW03_3$US_pop/100)*1738173)*(HW03_3$SC_ASM/1000)
+
+sum(HW03_3$ME_Edeaths)/796832*1000
+sum(HW03_3$SC_Edeaths)/1738173*1000
+
+
+
+
+
+
+
+
+
 
 
