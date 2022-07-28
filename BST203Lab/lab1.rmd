@@ -1,0 +1,108 @@
+---
+title: "BST203_lab1_2022"
+date: '2022-07-25'
+output: html_document
+---
+
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+library(haven)
+library(tidyr)
+library(ggplot2)
+
+# import the data set
+df <- read_dta("lab1.dta")
+```
+
+### What is the overall mean logpasses? What is the sample size/ mean logpasses/variance in each group?
+```{r}
+# overall mean logpasses
+mean(df$logpasses)
+
+paste("The overall mean logpasses is ", round(mean(df$logpasses),3), ".", sep = "")
+```
+```{r}
+# sample size/ mean logpasses/variance in each group
+
+summ <- df %>% group_by(position) %>%
+  summarize(sample_size = length(logpasses), 
+            mean = mean(logpasses),
+            variance = var(logpasses)) 
+
+summ
+```
+
+### Are the assumptions met?
+
+```{r}
+ggplot() +
+  geom_histogram(aes(x = logpasses),bins = 15, data = df) +
+  facet_wrap(~position) +
+  theme_bw()
+```
+
+Distributions appear normal
+
+```{r}
+ggplot() +
+  geom_boxplot(aes(x = position, y = logpasses, fill = position), data = df) 
+
+```
+
+variance appear equal
+
+### Estimate the within-group variance
+
+```{r}
+var_w <- summ %>% mutate( ns= (sample_size -1)*variance ) %>% ungroup() %>%
+  mutate(var_w = sum(ns)/(sum(sample_size)-3))
+
+var_w 
+
+paste("Within-group variance is", round(unique(var_w$var_w),3))
+```
+
+
+### Estimate the between-group variance
+
+```{r}
+var_b <- summ %>% mutate(x_dff_n = (mean - mean(df$logpasses))^2*sample_size) %>%
+  ungroup() %>%
+  mutate(var_b = sum(x_dff_n)/2)
+
+var_b
+
+paste("Between-group variance is", round(unique(var_b$var_b),3))
+```
+
+
+### F-statistics
+
+```{r}
+paste("F-statistics is var_b/var_w =", round(unique(var_b$var_b/var_w$var_w),3))
+```
+
+### Find p-value for F-statistics
+
+`df1` is the df for variance between groups (k-1)
+
+`df2` is the df for variance within groups (n-k)
+
+```{r}
+pf(16.782, df1 = 2, df2 = dim(df)[1]-3, lower.tail = FALSE)
+```
+
+
+### anova function
+
+```{r}
+summary(aov(logpasses ~ position, df))
+```
+
+
+
+
+
+
+
+
